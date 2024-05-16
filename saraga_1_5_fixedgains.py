@@ -89,9 +89,7 @@ class SaragaFixedGainsDataset(Dataset):
         """
 
         # load vocal track
-        print(getattr(self.track_dict[index], 'audio_vocal_path'))
         vocal = self.load_audio(getattr(self.track_dict[index], 'audio_vocal_path'))
-        print('Vocal Length:', vocal.shape[0]/self.sr)
         # choose random offset - NOTE to speed things up for now with the vocal probabilities (one prob per second), a random integer offset in seconds is sampled
         # choose random start index
         offset = random.randint(0, int(math.floor((vocal.shape[0] - self.chunk_size)/self.sr)))
@@ -114,7 +112,6 @@ class SaragaFixedGainsDataset(Dataset):
             float: Random SNR value
         """
         snr = random.sample(self.snr_list,1)[0]
-        #print('SNR:', snr)
         return snr
 
     def silence_vocal(self, index: int, offset: int, duration: float, vocal: np.ndarray) -> np.ndarray:
@@ -123,8 +120,7 @@ class SaragaFixedGainsDataset(Dataset):
             vocal_probabilities = self.track_dict[index].vocal_probabilities[offset:offset+int(math.ceil(duration))]
             for i, prob in enumerate(vocal_probabilities):
                 if prob < self.vocal_threshold:
-                    print('Silenced the vocal from second {} to second {}.'.format(i, i+1))
-                    
+                    #print('Silenced the vocal from second {} to second {}.'.format(i, i+1))
                     silence_length = min(vocal.shape[0] - i*self.sr , self.sr)
                     vocal[i*self.sr:(i+1)*self.sr] = np.zeros(silence_length)
 
@@ -148,7 +144,6 @@ class SaragaFixedGainsDataset(Dataset):
         
         instrumental = np.sum(instrumentals, axis = 0)
         if self.is_clipped(instrumental):
-            print('Is clipped')
             instrumental = instrumental / (np.max(instrumental)) 
         
         return np.sum(instrumentals, axis = 0)
@@ -206,7 +201,6 @@ class SaragaFixedGainsDataset(Dataset):
         # Final check to see if there are any amplitudes exceeding +/- 1. If so, normalize all the signals accordingly
         if self.is_clipped(noisyspeech):
             noisyspeech_maxamplevel = max(max(abs(noisyspeech))/(clipping_threshold), max(abs(noisenewlevel))/(clipping_threshold))
-            print('noisyspeech maxamplevel: ', noisyspeech_maxamplevel)
             noisyspeech = noisyspeech/noisyspeech_maxamplevel
             clean = clean/noisyspeech_maxamplevel
             noisenewlevel = noisenewlevel/noisyspeech_maxamplevel
