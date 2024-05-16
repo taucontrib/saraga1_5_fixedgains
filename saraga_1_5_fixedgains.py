@@ -24,6 +24,20 @@ class SaragaFixedGainsDataset(Dataset):
                  snr_upper: float =  5.0, 
                  total_snr_levels: int = 11,
                 ):
+        """ Initialize Saraga 1.5 dataset
+
+        Args:
+            path_to_saraga (str): path to the dataset
+            chunk_size (int, optional): sample size in samples - set to 142290 for MDX model with sr=24000. Defaults to 142290.
+            sr (int, optional): Samplerate. Defaults to 24000.
+            instrumentals_to_mix (str, optional): List of instrumentals to mix. Defaults to ['audio_mridangam_left_path', 'audio_mridangam_right_path','audio_violin_path'].
+            consider_vocal_probabilities (bool, optional): If true, the loader checks the vocal probabilities and mutes parts with prob<vocal_threshold. Defaults to False.
+            essentia_vocal_model (str, optional): Model for vocal probability - either 'vgg' or 'yamnet'. Defaults to 'vgg'.
+            vocal_threshold (float, optional): Muting threshold. Defaults to 0.8.
+            snr_lower (float, optional): Ratio of vocal and instrumental in dB - randomly sampled between snr_lower and snr_upper. Defaults to -5.0.
+            snr_upper (float, optional): Ratio of vocal and instrumental in dB - randomly sampled between snr_lower and snr_upper. Defaults to 5.0.
+            total_snr_levels (int, optional): Number of possible SNR values. Defaults to 11.
+        """
         
         saraga = mirdata.initialize('saraga_carnatic', data_home=path_to_saraga)
         self.instrumentals_to_mix = instrumentals_to_mix
